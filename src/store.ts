@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { Cart, CartState, User } from "./libs/types";
+import { Cart, CartState } from "./libs/types";
 
-const initData: Cart = {
+export const initData: Cart = {
   DAY1: {
     WK: [],
     GEN: [],
@@ -25,71 +25,92 @@ const initData: Cart = {
   },
 };
 
-export const useCart = create<CartState>()(
-  persist(
-    (set) => ({
-      cart: initData,
+export const useCart = create<CartState>((set) => ({
+  cart: initData,
 
-      addEvent: (event) => {
-        set((state) => {
-          const newCart = state.cart;
+  replaceCart: (newCart) => {
+    set((state) => {
+      console.log("old", state.cart);
+      console.log("new", newCart);
+      return { ...state, cart: newCart };
+    });
+  },
 
-          if (newCart.codes[event.day].includes(event.id)) return {};
+  addEvent: (event) => {
+    set((state) => {
+      const newCart = state.cart;
 
-          newCart[event.day][event.category].push(event);
-          newCart.codes[event.day].push(event.id);
+      if (newCart.codes[event.day].includes(event.id)) return {};
 
-          return { cart: newCart };
-        });
-      },
+      newCart[event.day][event.category].push(event);
+      newCart.codes[event.day].push(event.id);
 
-      removePass: (day) => {
-        set((state) => {
-          const newCart = state.cart;
+      return { cart: newCart };
+    });
+  },
 
-          newCart[day] = {
-            WK: [],
-            GEN: [],
-            PRO: [],
-          };
-          newCart.codes[day] = [];
+  removePass: (day) => {
+    set((state) => {
+      const newCart = state.cart;
 
-          return { cart: newCart };
-        });
-      },
+      newCart[day] = {
+        WK: [],
+        GEN: [],
+        PRO: [],
+      };
+      newCart.codes[day] = [];
 
-      removeEvent: (code, day, category) => {
-        set((state) => {
-          const newCart = state.cart;
+      return { cart: newCart };
+    });
+  },
 
-          newCart[day][category] = [
-            ...newCart[day][category].filter((obj) => obj.id !== code),
-          ];
-          newCart.codes[day] = [
-            ...newCart.codes[day].filter((i) => i !== code),
-          ];
+  removeEvent: (code, day, category) => {
+    set((state) => {
+      const newCart = state.cart;
 
-          return { cart: newCart };
-        });
-      },
+      newCart[day][category] = [
+        ...newCart[day][category].filter((obj) => obj.id !== code),
+      ];
+      newCart.codes[day] = [...newCart.codes[day].filter((i) => i !== code)];
 
-      cartOpen: false,
-      toggleCart: () => {
-        set((state) => ({ cartOpen: !state.cartOpen }));
-      },
-    }),
-    {
-      name: "cart",
-      storage: createJSONStorage(() => sessionStorage),
-    },
-  ),
-);
+      return { cart: newCart };
+    });
+  },
+  resetCart: () => {
+    set(() => {
+      const initDat = {
+        DAY1: {
+          WK: [],
+          GEN: [],
+          PRO: [],
+        },
+        DAY2: {
+          WK: [],
+          GEN: [],
+          PRO: [],
+        },
+        DAY3: {
+          WK: [],
+          GEN: [],
+          PRO: [],
+        },
+        codes: {
+          DAY1: [],
+          DAY2: [],
+          DAY3: [],
+        },
+      };
+      return { cart: initDat };
+    });
+  },
+}));
 
 interface AuthState {
-  auth: User | null;
-  setAcessToken: (user: User) => void;
+  auth: string | null;
+  uname: string | null;
+  setAcessToken: (accesstoken: string) => void;
+  setName: (name: string) => void;
   removeToken: () => void;
-  setVerificationStatus: () => void;
 }
 
 const initUser = null;
@@ -98,26 +119,23 @@ export const useAuth = create<AuthState>()(
   persist(
     (set) => ({
       auth: initUser,
-      setAcessToken: (user) => {
-        const newUser: User = { ...user, verified: false };
-        set(() => ({
-          auth: newUser,
-        }));
-      },
-      removeToken: () => {
-        set(() => ({ auth: null }));
-      },
-      setVerificationStatus: () => {
+      uname: initUser,
+      setAcessToken: (accesstoken) => {
         set((state) => ({
-          auth: state.auth
-            ? {
-              ...state.auth,
-              verified: true,
-            }
-            : null,
+          ...state,
+          auth: accesstoken,
         }));
+      },
+
+      setName: (name) => {
+        set((state) => ({ ...state, uname: name }));
+      },
+
+      removeToken: () => {
+        set(() => ({ uname: null, auth: null }));
       },
     }),
+
     {
       name: "user",
 

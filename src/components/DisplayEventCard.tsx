@@ -1,4 +1,4 @@
-import { EVENT,  } from "@/libs/types";
+import { EVENT } from "@/libs/types";
 import { IconTrash } from "@tabler/icons-react";
 import { useCart } from "@/store";
 
@@ -13,16 +13,13 @@ export default function DisplayEventCard({ title, day, category, id }: EVENT) {
             <IconTrash
               className="text-accentWhite cursor-pointer hover:text-red-500"
               size={24}
-              onClick={
-                () => {
-                  removeEvent(id, day, category);
-                }
-              }
+              onClick={() => {
+                removeEvent(id, day, category);
+              }}
             />
           </span>
         </h1>
-        <h1 className="text-accentWhite text-xs">
-{day}        </h1>
+        <h1 className="text-accentWhite text-xs">{day} </h1>
       </section>
       <h1 className="text-accentWhite text-3xl font-bold">₹ 150</h1>
     </section>

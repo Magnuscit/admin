@@ -28,17 +28,25 @@ export default function CartPass({ day, event }: prop) {
     return null;
 
   return (
-    <section className={cn("text-cream rounded-xl py-4 px-4 select-none", (event.WK.length > 0 || event.PRO.length > 0) ? "bg-amber-500 text-accentBlack": "bg-accentGrey text-accentWhite")}>
+    <section
+      className={cn(
+        "text-cream rounded-xl py-4 px-4 select-none",
+        event.WK.length > 0 || event.PRO.length > 0
+          ? "bg-amber-500 text-accentBlack"
+          : "bg-accentGrey text-accentWhite",
+      )}
+    >
       <div className="flex items-end justify-between">
         <h1 className="text-2xl lg:text-5xl">
-          {(event.PRO.length === 1 && event.WK.length === 1) ?
-            `${day} Karthik + Workshop (1)` 
-            : (event.PRO.length === 1 && event.WK.length === 2) ?
-            `${day} Karthik + Workshop (2)` 
-            : (event.PRO.length === 1 && event.WK.length === 0) ? 
-            `${day} Karthik Show` 
-            : (event.PRO.length === 0 && event.WK.length === 0) ? 
-            `${day} General Pass` : `${day} Workshop Pass`}
+          {event.PRO.length === 1 && event.WK.length === 1
+            ? `${day} Karthik + Workshop (1)`
+            : event.PRO.length === 1 && event.WK.length === 2
+              ? `${day} Karthik + Workshop (2)`
+              : event.PRO.length === 1 && event.WK.length === 0
+                ? `${day} Karthik Show`
+                : event.PRO.length === 0 && event.WK.length === 0
+                  ? `${day} General Pass`
+                  : `${day} Workshop Pass`}
           {/* {event.PRO.length === 1 &&
             event.WK.length === 0 &&
             `${day} Karthik Show`}

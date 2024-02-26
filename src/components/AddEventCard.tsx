@@ -6,13 +6,12 @@ interface props {
   category: "WK" | "GEN" | "PRO";
   title: string;
   day: "DAY1" | "DAY2" | "DAY3";
-  id: string
+  id: string;
 }
 
-export default function AddEventCard(
-  { title, day, id, category }: props,
-) {
-  const { addEvent } = useCart((state) => state);
+export default function AddEventCard({ title, day, id, category }: props) {
+  const addEvent = useCart((state) => state.addEvent);
+
   return (
     <section
       className={cn(
@@ -24,23 +23,20 @@ export default function AddEventCard(
     >
       <section>
         <h1 className="flex items-center text-xl font-bold gap-2">
-          {title}{" "}
+          {title}
           <span>
             <IconCirclePlus
               className=" cursor-pointer hover:text-white"
               size={24}
               onClick={() => {
-                addEvent({id, title, day, category});
+                addEvent({ id, title, day, category });
               }}
             />
           </span>
         </h1>
-        <h1 className=" text-xs">
-          {day === "DAY1" ? "29/02/2024"  : (day === "DAY2" ? "01/03/2024" : "02/03/2024")}
-
-        </h1>
+        <h1 className="font-mono text-sm">{day}</h1>
       </section>
-      <h1 className=" text-3xl font-bold">₹ 150</h1>
+      <h1 className="font-mono text-xl font-bold">{category}</h1>
     </section>
   );
 }
