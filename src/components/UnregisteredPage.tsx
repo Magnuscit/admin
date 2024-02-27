@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./Button";
 import Cart from "./Cart";
-import Input from "./Input";
 import { useAuth, useCart } from "@/store";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { API_URL } from "@/libs/utils";
+import { API_URL, cn } from "@/libs/utils";
+import { toast } from "react-toastify";
 
 export default function UnregisterPage() {
   const [user, setUser] = useState<string | null>(null);
@@ -62,9 +62,23 @@ export default function UnregisterPage() {
       );
 
       if (res.status === 200) setUser(user.email);
-    } catch (err) { }
+      toast.success("User Created sucessfully ! ! !");
+    } catch (err) {
+      toast.error("There is an ERROR, may be username already exist");
+    }
     resetCart();
   };
+
+  useEffect(() => {
+    if (errors.college) toast.error(errors.college.message);
+    if (errors.name) toast.error(errors.name.message);
+    if (errors.email) toast.error(errors.email.message);
+    if (errors.mobile) toast.error(errors.mobile.message);
+  }, [errors]);
+
+  useEffect(() => {
+    resetCart();
+  }, []);
 
   return (
     <section className="flex flex-col items-center space-y-4 w-full">
@@ -78,32 +92,44 @@ export default function UnregisterPage() {
           className="text-center space-y-2"
         >
           <input
-            className="p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none"
             {...register("email")}
             placeholder="Email"
+            className={cn(
+              "p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none",
+              errors.email && "border-4 border-red-500",
+            )}
             type="text"
           />
           <input
-            className="p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none"
             {...register("name")}
             placeholder="Name"
+            className={cn(
+              "p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none",
+              errors.name && "border-4 border-red-500",
+            )}
             type="text"
           />
           <input
-            className="p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none"
             {...register("mobile")}
             placeholder="Phone Number"
+            className={cn(
+              "p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none",
+              errors.mobile && "border-4 border-red-500",
+            )}
             type="text"
           />
           <input
-            className="p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none"
             {...register("college")}
             placeholder="Collage Name"
+            className={cn(
+              "p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none",
+              errors.college && "border-4 border-red-500",
+            )}
             type="text"
           />
           <br />
           <Button type="submit" disabled={isSubmitting}>
-            Register
+            {!isSubmitting ? "Register" : "Loading"}
           </Button>
         </form>
       )}

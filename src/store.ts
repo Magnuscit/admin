@@ -30,8 +30,6 @@ export const useCart = create<CartState>((set) => ({
 
   replaceCart: (newCart) => {
     set((state) => {
-      console.log("old", state.cart);
-      console.log("new", newCart);
       return { ...state, cart: newCart };
     });
   },
@@ -143,3 +141,12 @@ export const useAuth = create<AuthState>()(
     },
   ),
 );
+
+type TState = "participant-type" | "registered" | "unregistered";
+type FlowState = { state: TState; setState: (state: TState) => void };
+export const useFlow = create<FlowState>((set) => ({
+  state: "participant-type",
+  setState: (newState) => {
+    set((state) => ({ state: newState }));
+  },
+}));

@@ -9,9 +9,9 @@ import { IconSearch } from "@tabler/icons-react";
 import Button from "./Button";
 import Input from "./Input";
 import { API_URL, PARSE } from "@/libs/utils";
-import { useAuth, useCart } from "@/store";
+import { useAuth, useCart, useFlow } from "@/store";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const getDayPrice = (day: EventsInDay) => {
   if (day.PRO.length === 1 && day.WK.length === 2) return 850;
@@ -27,7 +27,7 @@ const getDayPrice = (day: EventsInDay) => {
 export default function Cart({ user_email }: { user_email: string }) {
   let sum = 0;
 
-  const router = useRouter();
+  const setState = useFlow((state) => state.setState);
 
   const { resetCart, cart } = useCart((state) => state);
   const [events, setEvents] = useState<EVENT[]>([]);
@@ -86,13 +86,14 @@ export default function Cart({ user_email }: { user_email: string }) {
         ...cart.codes.DAY3,
       ];
 
-      const res = await axios.put(
+      await axios.put(
         `${API_URL}/admin/update-cart`,
         { user_email, events_id },
         {
           headers: { authorization: `Bearer ${auth}` },
         },
       );
+      toast.success("Updated users cart !");
 
       await axios.put(
         `${API_URL}/admin/pay-event`,
@@ -101,11 +102,21 @@ export default function Cart({ user_email }: { user_email: string }) {
           headers: { authorization: `Bearer ${auth}` },
         },
       );
+      toast.success("User marked as paid");
+
+      await axios.post(
+        `${API_URL}/admin/pay-event`,
+        { email: user_email, type: "General" },
+        {
+          headers: { authorization: `Bearer ${auth}` },
+        },
+      );
+      toast.success("Email is sent sucessfully ! ");
 
       resetCart();
-      router.refresh();
+      setState("participant-type");
     } catch (err) {
-      console.log("ERROR");
+      toast.error("There was an error");
     } finally {
       setSubmitting(false);
     }
@@ -132,7 +143,7 @@ export default function Cart({ user_email }: { user_email: string }) {
           Total ₹{sum}
         </h1>
         <Button disabled={isSubmiting} onClick={confirmBooking}>
-          Confirm Booking
+          {!isSubmiting ? "Confirm Booking" : "Submiting"}
         </Button>
       </section>
 

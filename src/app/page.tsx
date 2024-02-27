@@ -3,14 +3,14 @@
 import Button from "@/components/Button";
 import RegisterPage from "@/components/RegisteredPage";
 import UnregisterPage from "@/components/UnregisteredPage";
-import { useAuth, useCart } from "@/store";
+import { useAuth, useCart, useFlow } from "@/store";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-type TState = "participant-type" | "registered" | "unregistered";
+import { useEffect } from "react";
+import { ToastContainer } from "react-toastify";
 
 export default function Home() {
-  const [state, setState] = useState<TState>("participant-type");
+  const { state, setState } = useFlow((state) => state);
+
   const { auth, uname, removeToken } = useAuth((state) => state);
   const { resetCart } = useCart((state) => state);
   const router = useRouter();
@@ -26,15 +26,21 @@ export default function Home() {
         <h1>
           you are signed in as: <strong>{uname}</strong>
         </h1>
-        <Button
-          onClick={() => {
-            router.push("/login");
-            removeToken();
-          }}
-          varient="grey"
-        >
-          Logout
-        </Button>
+        <section className="space-x-3">
+          <Button
+            onClick={() => {
+              router.push("/login");
+              removeToken();
+            }}
+            varient="grey"
+          >
+            Logout
+          </Button>
+
+          <Button onClick={() => setState("participant-type")} varient="grey">
+            Home
+          </Button>
+        </section>
       </nav>
 
       <h1 className="text-accentWhite mb-8 text-2xl font-mono text-center">
@@ -52,6 +58,18 @@ export default function Home() {
 
       {state === "registered" && <RegisterPage />}
       {state === "unregistered" && <UnregisterPage />}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="dark"
+      />
     </main>
   );
 }

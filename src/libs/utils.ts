@@ -9,8 +9,8 @@ export const INFO_URL = (ID: string): INFO_URL_TYPE => {
   return `https://github.com/${REPO_OWNER}/${REPO_NAME}/blob/master/events/${ID}/info.json`;
 };
 
-export const API_URL = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:6969";
-console.log(API_URL);
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_HOST || "http://localhost:6969";
 
 export const FOLDER_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}/tree/master/events`;
 export const FOLDER_INFO_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}/tree/master/info.json`;

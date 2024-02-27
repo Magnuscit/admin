@@ -9,6 +9,9 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function Login() {
   const {
     register,
@@ -41,12 +44,17 @@ export default function Login() {
 
       reset();
     } catch (err) {
-      console.log(err);
+      toast.error("Maybe your password is wrong");
     }
   };
 
+  useEffect(() => {
+    if (errors.uname) toast.error(errors.uname?.message);
+    if (errors.password) toast.error(errors.password?.message);
+  }, [errors]);
+
   return (
-    <main className="bg-accentBlack min-h-screen flex items-center justify-center p-8">
+    <main className="relative bg-accentBlack min-h-screen flex items-center justify-center p-8">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col items-center space-y-4 bg-accentGrey w-full p-8 rounded-lg lg:max-w-sm"
@@ -57,7 +65,7 @@ export default function Login() {
           type="text"
           placeholder="username"
           className={cn(
-            "p-2 w-full",
+            "p-2 w-full focus:outline-none",
             errors.uname && "border-4 border-red-500",
           )}
         />
@@ -66,7 +74,7 @@ export default function Login() {
           type="password"
           placeholder="password"
           className={cn(
-            "p-2 w-full",
+            "p-2 w-full focus:outline-none",
             errors.password && "border-4 border-red-500",
           )}
         />
@@ -74,6 +82,19 @@ export default function Login() {
           Submit
         </Button>
       </form>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="dark"
+      />
     </main>
   );
 }

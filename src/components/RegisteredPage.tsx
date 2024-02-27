@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./Button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { API_URL } from "@/libs/utils";
+import { API_URL, cn } from "@/libs/utils";
 import axios from "axios";
 import { initData, useAuth, useCart } from "@/store";
 import { Cart, EVENT, ReceivedCart } from "@/libs/types";
 import CartComponent from "./Cart";
+import { toast } from "react-toastify";
 
 export default function RegisterPage() {
   const [user, setUser] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export default function RegisterPage() {
 
       const cart: ReceivedCart = res.data.body.data;
       if (Object.keys(cart).length === 0) {
-        return console.log("Email Not Found");
+        toast.warn("There might be an error ! ! !");
       }
 
       let newCart: Cart = initData;
@@ -113,11 +114,16 @@ export default function RegisterPage() {
         }
 
       setUser(data.user_email);
+      toast.success("Fetched Sucessfully");
       replaceCart(newCart);
     } catch (err) {
-      console.log(err);
+      toast.error("There was an error fetching data");
     }
   };
+
+  useEffect(() => {
+    if (errors.user_email) toast.error(errors.user_email.message);
+  }, [errors]);
 
   return (
     <section className="flex flex-col space-y-4 w-full">
@@ -127,14 +133,17 @@ export default function RegisterPage() {
       >
         <input
           {...register("user_email")}
-          className="p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none"
+          className={cn(
+            "p-2 px-5 rounded-lg shadow-black bg-accentWhite w-full lg:max-w-xl text-accentBlack text-lg border-4 border-accentGrey focus:outline-none",
+            errors.user_email && "border-4 border-red-500",
+          )}
           placeholder="Email Here"
           disabled={user ? true : false}
           type="text"
         />
         {!user && (
           <Button disabled={isSubmitting} type="submit">
-            Search
+            {!isSubmitting ? "Search" : "Loading"}
           </Button>
         )}
       </form>
