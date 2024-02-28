@@ -105,7 +105,7 @@ export default function Cart({ user_email }: { user_email: string }) {
       toast.success("User marked as paid");
 
       await axios.post(
-        `${API_URL}/admin/pay-event`,
+        `${API_URL}/support/paid`,
         { email: user_email, type: "General" },
         {
           headers: { authorization: `Bearer ${auth}` },
