@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { API_URL, cn } from "@/libs/utils";
 import axios from "axios";
-import { initData, useAuth, useCart } from "@/store";
+import { initData, useAuth, useCart, useFlow } from "@/store";
 import { Cart, EVENT, ReceivedCart } from "@/libs/types";
 import CartComponent from "./Cart";
 import { toast } from "react-toastify";
@@ -23,6 +23,7 @@ export default function RegisterPage() {
   });
   const auth = useAuth((state) => state.auth);
   const replaceCart = useCart((state) => state.replaceCart);
+  const { setState } = useFlow((state) => state);
 
   type RegisteredFormType = z.infer<typeof RegisterForm>;
 
@@ -46,10 +47,32 @@ export default function RegisterPage() {
 
       const cart: ReceivedCart = res.data.body.data;
       if (Object.keys(cart).length === 0) {
-        toast.warn("There might be an error ! ! !");
+        toast.warn("There is an error, User may be unregistered ! ! !");
+        return setState("participant-type");
       }
 
-      let newCart: Cart = initData;
+      let newCart: Cart = {
+        DAY1: {
+          WK: [],
+          GEN: [],
+          PRO: [],
+        },
+        DAY2: {
+          WK: [],
+          GEN: [],
+          PRO: [],
+        },
+        DAY3: {
+          WK: [],
+          GEN: [],
+          PRO: [],
+        },
+        codes: {
+          DAY1: [],
+          DAY2: [],
+          DAY3: [],
+        },
+      };
 
       if (cart["DAY1"])
         for (let event of cart["DAY1"]) {
