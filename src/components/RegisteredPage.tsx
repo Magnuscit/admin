@@ -45,10 +45,14 @@ export default function RegisterPage() {
         },
       );
 
+      if (res.status === 400) {
+        toast.warn("user did't register");
+        return setState("participant-type");
+      }
+
       const cart: ReceivedCart = res.data.body.data;
       if (Object.keys(cart).length === 0) {
-        toast.warn("There is an error, User may be unregistered ! ! !");
-        return setState("participant-type");
+        toast.warn("User didn't book any events ! ! !");
       }
 
       let newCart: Cart = {
