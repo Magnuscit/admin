@@ -1,10 +1,9 @@
 "use client";
 import Button from "@/components/Button";
-import { API_URL, cn } from "@/libs/utils";
+import { API_URL, PASSWORD, USERNAME, cn } from "@/libs/utils";
 import { AdminLogin, AdminType } from "@/libs/validators";
-import { useAuth, useCart } from "@/store";
+import { useAdminStore } from "@/store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -22,23 +21,21 @@ export default function Login() {
     resolver: zodResolver(AdminLogin),
   });
 
-  const { setName, setAcessToken, auth } = useAuth((state) => state);
-  const { resetCart } = useCart((state) => state);
+  const { admin, setAdmin } = useAdminStore((e) => e);
   const router = useRouter();
 
   useEffect(() => {
-    resetCart();
-    if (auth) return router.push("/");
+    if (admin) return router.push("/");
   }, []);
 
   const onSubmit = async (data: AdminType) => {
     try {
-      const res = await axios.post(`${API_URL}/admin/login`, {
-        ...data,
-      });
+      console.log("==>", USERNAME, PASSWORD, API_URL, "<==");
+      if (USERNAME !== data.uname || PASSWORD !== data.password) {
+        throw Error;
+      }
 
-      setAcessToken(res.data.body.token);
-      setName(data.uname);
+      setAdmin(data.uname);
 
       router.push("/");
 

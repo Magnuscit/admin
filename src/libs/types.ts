@@ -1,8 +1,5 @@
-export const REPO_OWNER = "cittakshashila";
-export const REPO_NAME = "EVENTS-DATA-24";
-
-export type INFO_URL =
-  `https://github.com/cittakshashila/EVENTS-DATA-24/blob/master/${string}/info.json`;
+export const REPO_OWNER = "Magnuscit";
+export const REPO_NAME = "events-data-25";
 
 type Type =
   | "All"

@@ -1,152 +1,89 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { Cart, CartState } from "./libs/types";
 
-export const initData: Cart = {
-  DAY1: {
-    WK: [],
-    GEN: [],
-    PRO: [],
-  },
-  DAY2: {
-    WK: [],
-    GEN: [],
-    PRO: [],
-  },
-  DAY3: {
-    WK: [],
-    GEN: [],
-    PRO: [],
-  },
-  codes: {
-    DAY1: [],
-    DAY2: [],
-    DAY3: [],
-  },
-};
-
-export const useCart = create<CartState>((set) => ({
-  cart: initData,
-
-  replaceCart: (newCart) => {
-    set((state) => {
-      return { ...state, cart: newCart };
-    });
-  },
-
-  addEvent: (event) => {
-    set((state) => {
-      const newCart = state.cart;
-
-      if (newCart.codes[event.day].includes(event.id)) return {};
-
-      newCart[event.day][event.category].push(event);
-      newCart.codes[event.day].push(event.id);
-
-      return { cart: newCart };
-    });
-  },
-
-  removePass: (day) => {
-    set((state) => {
-      const newCart = state.cart;
-
-      newCart[day] = {
-        WK: [],
-        GEN: [],
-        PRO: [],
-      };
-      newCart.codes[day] = [];
-
-      return { cart: newCart };
-    });
-  },
-
-  removeEvent: (code, day, category) => {
-    set((state) => {
-      const newCart = state.cart;
-
-      newCart[day][category] = [
-        ...newCart[day][category].filter((obj) => obj.id !== code),
-      ];
-      newCart.codes[day] = [...newCart.codes[day].filter((i) => i !== code)];
-
-      return { cart: newCart };
-    });
-  },
-  resetCart: () => {
-    set(() => {
-      const initDat = {
-        DAY1: {
-          WK: [],
-          GEN: [],
-          PRO: [],
-        },
-        DAY2: {
-          WK: [],
-          GEN: [],
-          PRO: [],
-        },
-        DAY3: {
-          WK: [],
-          GEN: [],
-          PRO: [],
-        },
-        codes: {
-          DAY1: [],
-          DAY2: [],
-          DAY3: [],
-        },
-      };
-      return { cart: initDat };
-    });
-  },
-}));
-
-interface AuthState {
-  auth: string | null;
-  uname: string | null;
-  setAcessToken: (accesstoken: string) => void;
-  setName: (name: string) => void;
-  removeToken: () => void;
+/*++++++ADMINS++++++++++++++++++++++++++ */
+interface AdminStore {
+  admin: string;
+  setAdmin: (admin: string) => void;
 }
 
-const initUser = null;
-
-export const useAuth = create<AuthState>()(
+const useAdminStore = create<AdminStore>()(
   persist(
     (set) => ({
-      auth: initUser,
-      uname: initUser,
-      setAcessToken: (accesstoken) => {
-        set((state) => ({
-          ...state,
-          auth: accesstoken,
-        }));
-      },
-
-      setName: (name) => {
-        set((state) => ({ ...state, uname: name }));
-      },
-
-      removeToken: () => {
-        set(() => ({ uname: null, auth: null }));
-      },
+      admin: "",
+      setAdmin: (admin) => set({ admin }),
     }),
-
-    {
-      name: "user",
-
-      storage: createJSONStorage(() => sessionStorage),
-    },
+    { name: "admin-session", storage: createJSONStorage(() => sessionStorage) },
   ),
 );
 
-type TState = "participant-type" | "registered" | "unregistered";
-type FlowState = { state: TState; setState: (state: TState) => void };
-export const useFlow = create<FlowState>((set) => ({
-  state: "participant-type",
-  setState: (newState) => {
-    set((state) => ({ state: newState }));
-  },
+/*++++++PARTICIPANTS++++++++++++++++++++++++++ */
+interface UserDetails {
+  email: string;
+  name: string;
+  college: string;
+  mobile: string;
+}
+
+interface Store {
+  email: string;
+  name: string;
+  college: string;
+  mobile: string;
+  events: string[];
+
+  setUserDetails: (userDetails: UserDetails) => void;
+  addEvent: (event: string) => void;
+  removeEvent: (event: string) => void;
+  resetState: () => void;
+}
+
+const useParticipants = create<Store>()(
+  persist(
+    (set) => ({
+      email: "",
+      name: "",
+      college: "",
+      mobile: "",
+      events: [],
+
+      setUserDetails: (userDetails) => set({ ...userDetails }),
+
+      addEvent: (event) =>
+        set((state) => ({
+          events: [...state.events, event],
+        })),
+
+      resetState: () =>
+        set({
+          email: "",
+          name: "",
+          college: "",
+          mobile: "",
+          events: [],
+        }),
+
+      removeEvent: (event) =>
+        set((state) => ({
+          events: state.events.filter((e) => e !== event),
+        })),
+    }),
+    { name: "user-session", storage: createJSONStorage(() => sessionStorage) },
+  ),
+);
+
+
+
+/*++++++PHASE++++++++++++++++++++++++++ */
+type Phase = "userdetails" | "eventselection";
+interface PhaseStore {
+  currentPhase: Phase;
+  setCurrentPhase: (phase: Phase) => void;
+}
+
+const usePhaseStore = create<PhaseStore>((set) => ({
+  currentPhase: "userdetails", 
+  setCurrentPhase: (phase) => set({ currentPhase: phase }),
 }));
+
+export { useParticipants, useAdminStore, usePhaseStore };

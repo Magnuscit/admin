@@ -2,17 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Button from "./Button";
-import Cart from "./Cart";
-import { useAuth, useCart } from "@/store";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { API_URL, cn } from "@/libs/utils";
+import { cn } from "@/libs/utils";
 import { toast } from "react-toastify";
+import MagnusCart from "./MagnusCart";
+import { useParticipants, usePhaseStore } from "@/store";
 
 export default function UnregisterPage() {
-  const [user, setUser] = useState<string | null>(null);
+  const { resetState, setUserDetails } = useParticipants();
+  // const [currentPhase, setCurrentPhase] = useState<
+  //   "userdetails" | "eventselection"
+  // >("userdetails");
+  const { currentPhase, setCurrentPhase } = usePhaseStore();
 
   const RegisterForm = z.object({
     name: z
@@ -33,14 +36,12 @@ export default function UnregisterPage() {
       .email("Not a valid email"),
   });
 
-  const auth = useAuth((state) => state.auth);
-  const resetCart = useCart((state) => state.resetCart);
-
   type RegisteredFormType = z.infer<typeof RegisterForm>;
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<RegisteredFormType>({
     resolver: zodResolver(RegisterForm),
@@ -48,25 +49,12 @@ export default function UnregisterPage() {
 
   const onSubmit = async (user: RegisteredFormType) => {
     try {
-      const res = await axios.post(
-        `${API_URL}/admin/create-user`,
-        {
-          name: user.name,
-          clg_name: user.college,
-          phone_no: user.mobile,
-          email: user.email,
-        },
-        {
-          headers: { authorization: `Bearer ${auth}` },
-        },
-      );
-
-      if (res.status === 200) setUser(user.email);
+      setCurrentPhase("eventselection");
+      setUserDetails(user);
       toast.success("User Created sucessfully ! ! !");
     } catch (err) {
       toast.error("There is an ERROR, may be username already exist");
     }
-    resetCart();
   };
 
   useEffect(() => {
@@ -77,16 +65,33 @@ export default function UnregisterPage() {
   }, [errors]);
 
   useEffect(() => {
-    resetCart();
+    resetState();
+    reset();
   }, []);
 
   return (
     <section className="flex flex-col items-center space-y-4 w-full">
-      {user !== null ? (
-        <h1 className="text-accentWhite font-mono text-center">
-          Displaying Cart of {user}
-        </h1>
-      ) : (
+      {currentPhase === "userdetails" && (
+        <div className="w-full max-w-xl ">
+          <span
+            className="bg-white p-2 rounded-md cursor-pointer"
+            onClick={() => reset()}
+          >
+            o
+          </span>
+        </div>
+      )}
+      {currentPhase === "eventselection" && (
+        <div className="w-full max-w-xl ">
+          <span
+            className="bg-white p-2 rounded-md cursor-pointer"
+            onClick={() => setCurrentPhase("userdetails")}
+          >
+            &lt;=
+          </span>
+        </div>
+      )}
+      {currentPhase === "userdetails" ? (
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="text-center space-y-2"
@@ -129,12 +134,12 @@ export default function UnregisterPage() {
           />
           <br />
           <Button type="submit" disabled={isSubmitting}>
-            {!isSubmitting ? "Register" : "Loading"}
+            {!isSubmitting ? "Next" : "Loading"}
           </Button>
         </form>
+      ) : (
+        <MagnusCart />
       )}
-
-      {user !== null && <Cart user_email={user} />}
     </section>
   );
 }
