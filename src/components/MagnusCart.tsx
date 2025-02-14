@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useParticipants, usePhaseStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
@@ -15,8 +15,16 @@ type TData = {
 
 export default function MagnusCart() {
   const [data, setData] = useState<TData[]>();
-  const { name, college, mobile, email, events, addEvent, removeEvent, resetState } =
-    useParticipants();
+  const {
+    name,
+    college,
+    mobile,
+    email,
+    events,
+    addEvent,
+    removeEvent,
+    resetState,
+  } = useParticipants();
   const pricemap = useRef<{ [code: string]: number }>();
   const { currentPhase, setCurrentPhase } = usePhaseStore();
 
@@ -25,16 +33,25 @@ export default function MagnusCart() {
       const res = await fetch("/api/events/folder");
       const data: { [code: string]: { price: number; name: string } } =
         await res.json();
+      const alreadyRegisteredEvents = await axios.post(
+        `${API_URL}/user-events`,
+        {
+          email,
+        },
+      );
 
+      const registeredCodesSet = new Set(alreadyRegisteredEvents.data.events);
       let tmp: TData[] = [];
       let tmpPricemap: { [code: string]: number } = {};
       for (let i in data) {
-        tmp.push({
-          code: i,
-          name: data[i].name,
-          price: data[i].price,
-        });
-        tmpPricemap[i] = data[i].price;
+        if (!registeredCodesSet.has(i)) {
+          tmp.push({
+            code: i,
+            name: data[i].name,
+            price: data[i].price,
+          });
+          tmpPricemap[i] = data[i].price;
+        }
       }
 
       setData(tmp);
@@ -62,10 +79,10 @@ export default function MagnusCart() {
         email,
         events,
       });
-      
-      toast.success("signed in");
+
+      toast.success("registered");
       resetState();
-      setCurrentPhase('userdetails');
+      setCurrentPhase("userdetails");
     } catch {
       toast.warn("user did't register");
     }
