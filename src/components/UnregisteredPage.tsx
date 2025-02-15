@@ -20,11 +20,11 @@ export default function UnregisterPage() {
   const RegisterForm = z.object({
     name: z
       .string({ required_error: "Name feild is required" })
-      .min(4, "Name should be atleast 4 characters")
-      .max(15, "Name should be atmost 15 characters"),
+      .min(3, "Name should be atleast 3 characters")
+      .max(50, "Name should be atmost 50 characters"),
     college: z
       .string({ required_error: "College feild is required" })
-      .min(4, "College Name should be atleast 3 characters")
+      .min(3, "College Name should be atleast 3 characters")
       .max(50, "Colege Name should be atmost 50 characters"),
     mobile: z
       .string({ required_error: "Mobile Number is required" })
