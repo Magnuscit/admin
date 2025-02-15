@@ -44,7 +44,7 @@ export default function MagnusCart() {
       let tmp: TData[] = [];
       let tmpPricemap: { [code: string]: number } = {};
       for (let i in data) {
-        if (!registeredCodesSet.has(i)) {
+        if (!registeredCodesSet.has(i) && i !== "EXPO" && i !== "LIFE") {
           tmp.push({
             code: i,
             name: data[i].name,
