@@ -71,20 +71,33 @@ export default function MagnusCart() {
   }
 
   const onSubmit = async () => {
-    try {
-      await axios.post(`${API_URL}/on-desk-registration`, {
-        phone: mobile,
-        college,
-        name,
-        email,
-        events,
-      });
+    const confirmationMessage = `
+  name: ${name},
+  college: ${college},
+  email: ${email},
+  phone: ${mobile},
+  registering-events: ${events.join(", ")},\n
+  Do you really want to continue registering this person???
+`;
+    let confirmation = confirm(confirmationMessage);
+    if (confirmation) {
+      try {
+        await axios.post(`${API_URL}/on-desk-registration`, {
+          phone: mobile,
+          college,
+          name,
+          email,
+          events,
+        });
 
-      toast.success("registered");
-      resetState();
-      setCurrentPhase("userdetails");
-    } catch {
-      toast.warn("user did't register");
+        toast.success("registered");
+        resetState();
+        setCurrentPhase("userdetails");
+      } catch {
+        toast.warn("user did't register");
+      }
+    } else {
+      toast.warn("registration cancelled");
     }
   };
 
